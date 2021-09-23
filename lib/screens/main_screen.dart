@@ -18,9 +18,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     FirebaseRepository _firebaseRepository = new FirebaseRepository();
-    if (FirebaseAuth.instance.currentUser == null) {
-      Provider.of<SignInProvider>(context, listen: false).setSignIn(false);
-    }
     return MaterialApp(
       title: "Video Chat",
       initialRoute: '/',
