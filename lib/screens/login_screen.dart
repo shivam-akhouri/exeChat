@@ -56,9 +56,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void performLogin() {
-    setState(() {
-      isLoginPressed = true;
-    });
     _repository.signIn().then((UserCredential? user) {
       if (user != null) {
         authenticateUser(user);
@@ -68,6 +65,10 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         print("There was an error");
       }
+    });
+
+    setState(() {
+      isLoginPressed = true;
     });
   }
 
