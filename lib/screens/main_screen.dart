@@ -5,7 +5,7 @@ import 'package:videochatapp/providers/signInProvider.dart';
 import 'package:videochatapp/resources/firebase_repository.dart';
 import 'package:videochatapp/screens/search_screen.dart';
 import 'home_screen.dart';
-import 'login_screen.dart';
+import 'login_screen_rahul.dart';
 
 class MainScreen extends StatefulWidget {
   MainScreen({Key? key}) : super(key: key);
@@ -18,9 +18,9 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     FirebaseRepository _firebaseRepository = new FirebaseRepository();
-    if (FirebaseAuth.instance.currentUser == null) {
+    /*if (FirebaseAuth.instance.currentUser == null) {
       Provider.of<SignInProvider>(context, listen: false).setSignIn(false);
-    }
+    }*/
     return MaterialApp(
       title: "Video Chat",
       initialRoute: '/',
@@ -36,10 +36,10 @@ class _MainScreenState extends State<MainScreen> {
               if (Provider.of<SignInProvider>(context).signIn) {
                 return HomeScreen();
               } else {
-                return LoginScreen();
+                return MyLoginPage();
               }
             } else {
-              return LoginScreen();
+              return MyLoginPage();
             }
           }),
     );

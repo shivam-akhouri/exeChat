@@ -7,7 +7,6 @@ import 'package:videochatapp/resources/firebase_repository.dart';
 import 'package:videochatapp/screens/main_screen.dart';
 
 import './screens/home_screen.dart';
-import './screens/login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
