@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:videochatapp/resources/firebase_repository.dart';
 import 'package:videochatapp/screens/login_screen.dart';
+import 'package:videochatapp/screens/login_screen_rahul.dart';
 import 'package:videochatapp/screens/search_screen.dart';
 import 'package:videochatapp/utils/universal_variables.dart';
 import 'package:videochatapp/widgets/appbar.dart';
@@ -44,7 +45,7 @@ class _ChatListScreeState extends State<ChatListScreen> {
           onPressed: () async {
             await _repository.signOut();
             Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => LoginScreen()));
+                MaterialPageRoute(builder: (context) => MyLoginPage()));
           },
         ),
         centerTitle: true);

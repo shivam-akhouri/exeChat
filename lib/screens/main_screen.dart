@@ -5,7 +5,7 @@ import 'package:videochatapp/providers/signInProvider.dart';
 import 'package:videochatapp/resources/firebase_repository.dart';
 import 'package:videochatapp/screens/search_screen.dart';
 import 'home_screen.dart';
-import 'login_screen.dart';
+import 'login_screen_rahul.dart';
 
 class MainScreen extends StatefulWidget {
   MainScreen({Key? key}) : super(key: key);
@@ -36,10 +36,10 @@ class _MainScreenState extends State<MainScreen> {
               if (Provider.of<SignInProvider>(context).signIn) {
                 return HomeScreen();
               } else {
-                return LoginScreen();
+                return MyLoginPage();
               }
             } else {
-              return LoginScreen();
+              return MyLoginPage();
             }
           }),
     );
