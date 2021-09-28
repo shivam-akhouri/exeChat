@@ -13,7 +13,7 @@ class UniversalVariables {
   static final Color gradientColorEnd = Color(0xff0184dc);
 
   static final Color senderColor = Color(0xff2b343b);
-  static final Color receiverColor = Color(0xff1e2225);
+  static final Color receiverColor = Color.fromRGBO(54, 54, 54, 1.0);
 
   static final Gradient fabGradient = LinearGradient(
       colors: [gradientColorStart, gradientColorEnd],

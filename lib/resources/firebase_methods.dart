@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:videochatapp/models/message.dart';
 import 'package:videochatapp/providers/signInProvider.dart';
 import '../models/user.dart';
 
@@ -88,5 +89,20 @@ class FireabaseMethods {
           username: querySnapshot.docs[i].get('username')));
     }
     return userList;
+  }
+
+  Future<void> addMessageToDb(Message message) async {
+    var map = message.toMap();
+    await FirebaseFirestore.instance
+        .collection('messages')
+        .doc(message.senderId)
+        .collection(message.receiverId)
+        .add(map);
+
+    await FirebaseFirestore.instance
+        .collection('messages')
+        .doc(message.receiverId)
+        .collection(message.senderId)
+        .add(map);
   }
 }
