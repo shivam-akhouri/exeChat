@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:videochatapp/models/message.dart';
 import 'package:videochatapp/models/user.dart';
+import 'package:videochatapp/resources/firebase_repository.dart';
 import 'package:videochatapp/utils/universal_variables.dart';
 import 'package:videochatapp/widgets/appbar.dart';
 import 'package:videochatapp/widgets/custom_tile.dart';
@@ -19,8 +21,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   TextEditingController textEditingController = new TextEditingController();
   bool isWriting = false;
-
   late Users sender;
+  FirebaseRepository _repository = new FirebaseRepository();
 
   @override
   void initState() {
@@ -45,6 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     setState(() {
+      textEditingController.clear();
       isWriting = false;
     });
   }
@@ -68,6 +71,20 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         isWriting = val;
       });
+    }
+
+    sendMessage() {
+      var text = textEditingController.text;
+      Message message = Message(
+          senderId: sender.uid as String,
+          receiverId: widget.receiver.uid as String,
+          type: 'text',
+          message: text,
+          timestamp: FieldValue.serverTimestamp());
+      setState(() {
+        isWriting = false;
+      });
+      _repository.addMessageTodb(message);
     }
 
     addMediaModal(context) {
@@ -205,7 +222,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   child: IconButton(
                     icon: Icon(Icons.send, size: 15.0),
-                    onPressed: () {},
+                    onPressed: () => sendMessage(),
                   ),
                 )
               : Container(),
@@ -215,26 +232,41 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget messageList() {
-    return ListView.builder(
-      padding: EdgeInsets.all(15.0),
-      itemCount: 20,
-      itemBuilder: (context, index) {
-        return chatMessageItem();
-      },
-    );
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('messages')
+            .doc(sender.uid)
+            .collection(widget.receiver.uid as String)
+            .orderBy('timestamp', descending: false)
+            .snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) {
+            return CircularProgressIndicator();
+          }
+          return ListView.builder(
+              padding: EdgeInsets.all(10),
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                return chatMessageItem(snapshot.data!.docs[index]);
+              });
+        });
   }
 
-  Widget chatMessageItem() {
+  Widget chatMessageItem(DocumentSnapshot snapshot) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 5.0),
-      alignment: Alignment.centerRight,
       child: Container(
-        child: senderLayout(),
+        alignment: snapshot['senderId'] == sender.uid
+            ? Alignment.centerRight
+            : Alignment.centerLeft,
+        child: snapshot['senderId'] == sender.uid
+            ? senderLayout(snapshot)
+            : receiverLayout(snapshot),
       ),
     );
   }
 
-  Widget senderLayout() {
+  Widget senderLayout(DocumentSnapshot snapshot) {
     Radius messageRadius = Radius.circular(10.0);
     return Container(
       margin: EdgeInsets.only(top: 3.0),
@@ -249,16 +281,21 @@ class _ChatScreenState extends State<ChatScreen> {
             bottomLeft: messageRadius,
           )),
       child: Padding(
-        padding: EdgeInsets.all(10.0),
-        child: Text(
-          "hello",
-          style: TextStyle(color: Colors.white, fontSize: 16.0),
-        ),
-      ),
+          padding: EdgeInsets.all(10.0),
+          child: getMessage(
+            snapshot,
+          )),
     );
   }
 
-  Widget receiverLayout() {
+  getMessage(DocumentSnapshot snapshot) {
+    return Text(
+      snapshot['message'],
+      style: TextStyle(color: Colors.white, fontSize: 16.0),
+    );
+  }
+
+  Widget receiverLayout(DocumentSnapshot snapshot) {
     Radius messageRadius = Radius.circular(10.0);
     return Container(
       margin: EdgeInsets.only(top: 3.0),
@@ -266,7 +303,7 @@ class _ChatScreenState extends State<ChatScreen> {
         maxWidth: MediaQuery.of(context).size.width * 0.65,
       ),
       decoration: BoxDecoration(
-          color: UniversalVariables.senderColor,
+          color: UniversalVariables.receiverColor,
           borderRadius: BorderRadius.only(
             bottomRight: messageRadius,
             topRight: messageRadius,
@@ -274,10 +311,7 @@ class _ChatScreenState extends State<ChatScreen> {
           )),
       child: Padding(
         padding: EdgeInsets.all(10.0),
-        child: Text(
-          "hello",
-          style: TextStyle(color: Colors.white, fontSize: 16.0),
-        ),
+        child: getMessage(snapshot),
       ),
     );
   }

@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
-  String senderId;
-  String receiverId;
-  String type;
-  String message;
-  FieldValue timestamp;
+  late String senderId;
+  late String receiverId;
+  late String type;
+  String? message;
+  late FieldValue timestamp;
   String? photoUrl;
 
   Message(

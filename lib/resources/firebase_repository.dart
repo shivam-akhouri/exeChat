@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:videochatapp/models/message.dart';
 import 'package:videochatapp/models/user.dart';
 import './firebase_methods.dart';
 
@@ -18,4 +19,7 @@ class FirebaseRepository {
   Future<void> signOut() => _fireabaseMethods.signOut();
 
   Future<List<Users>> fetchAllUsers() => _fireabaseMethods.fetchAllUsers();
+
+  Future<void> addMessageTodb(Message message) =>
+      _fireabaseMethods.addMessageToDb(message);
 }
