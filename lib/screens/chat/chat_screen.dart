@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:videochatapp/models/message.dart';
 import 'package:videochatapp/models/user.dart';
 import 'package:videochatapp/resources/firebase_repository.dart';
@@ -23,6 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isWriting = false;
   late Users sender;
   FirebaseRepository _repository = new FirebaseRepository();
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -42,7 +46,7 @@ class _ChatScreenState extends State<ChatScreen> {
       receiverId: widget.receiver.uid as String,
       senderId: sender.uid as String,
       message: text,
-      timestamp: FieldValue.serverTimestamp(),
+      timestamp: Timestamp.now(),
       type: 'text',
     );
 
@@ -80,7 +84,7 @@ class _ChatScreenState extends State<ChatScreen> {
           receiverId: widget.receiver.uid as String,
           type: 'text',
           message: text,
-          timestamp: FieldValue.serverTimestamp());
+          timestamp: Timestamp.now());
       setState(() {
         isWriting = false;
       });
@@ -158,6 +162,16 @@ class _ChatScreenState extends State<ChatScreen> {
           });
     }
 
+    pickImage(ImageSource source) async {
+      var image = await _picker.pickImage(source: source);
+      if (image != null) {
+        File file = File(image.path);
+        print(file.path);
+        _repository.uploadImage(file, widget.receiver.uid as String,
+            FirebaseAuth.instance.currentUser!.uid);
+      }
+    }
+
     return Container(
       padding: EdgeInsets.all(10.0),
       child: Row(
@@ -212,7 +226,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 10.0),
                   child: Icon(Icons.record_voice_over),
                 ),
-          isWriting ? Container() : Icon(Icons.camera_alt),
+          isWriting
+              ? Container()
+              : GestureDetector(
+                  onTap: () => pickImage(ImageSource.camera),
+                  child: Icon(Icons.camera_alt)),
           isWriting
               ? Container(
                   margin: EdgeInsets.only(left: 10.0),
@@ -289,10 +307,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   getMessage(DocumentSnapshot snapshot) {
-    return Text(
-      snapshot['message'],
-      style: TextStyle(color: Colors.white, fontSize: 16.0),
-    );
+    return snapshot['type'] == 'image'
+        ? Image.network(snapshot['photoUrl'])
+        : Text(
+            snapshot['message'],
+            style: TextStyle(color: Colors.white, fontSize: 16.0),
+          );
   }
 
   Widget receiverLayout(DocumentSnapshot snapshot) {

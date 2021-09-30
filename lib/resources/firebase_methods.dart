@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:videochatapp/models/message.dart';
@@ -104,5 +107,46 @@ class FireabaseMethods {
         .doc(message.receiverId)
         .collection(message.senderId)
         .add(map);
+  }
+
+  Future<void> addImageMessageToDb(Message message) async {
+    var map = message.toImageMap();
+    await FirebaseFirestore.instance
+        .collection('messages')
+        .doc(message.senderId)
+        .collection(message.receiverId)
+        .add(map);
+
+    await FirebaseFirestore.instance
+        .collection('messages')
+        .doc(message.receiverId)
+        .collection(message.senderId)
+        .add(map);
+  }
+
+  uploadImageToStorage(File image, String receiverId, String senderId) {
+    // Adding image to the database
+    Reference reference = FirebaseStorage.instance
+        .ref()
+        .child('chat-storage')
+        .child(
+            '${FirebaseAuth.instance.currentUser!.uid}-${DateTime.now().microsecondsSinceEpoch}');
+    UploadTask uploadFile = reference.putFile(image);
+    uploadFile.whenComplete(() async {
+      try {
+        String imageUrl = await reference.getDownloadURL();
+        Message _message;
+        _message = Message.imageMessage(
+            senderId: senderId,
+            receiverId: receiverId,
+            type: 'image',
+            message: "image",
+            timestamp: Timestamp.now(),
+            photoUrl: imageUrl);
+        await addImageMessageToDb(_message);
+      } catch (e) {
+        print(e);
+      }
+    });
   }
 }

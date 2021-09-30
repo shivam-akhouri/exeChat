@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:videochatapp/models/message.dart';
 import 'package:videochatapp/models/user.dart';
 import './firebase_methods.dart';
@@ -22,4 +25,7 @@ class FirebaseRepository {
 
   Future<void> addMessageTodb(Message message) =>
       _fireabaseMethods.addMessageToDb(message);
+
+  void uploadImage(File image, String receiverId, senderId) =>
+      _fireabaseMethods.uploadImageToStorage(image, receiverId, senderId);
 }

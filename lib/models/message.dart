@@ -5,7 +5,7 @@ class Message {
   late String receiverId;
   late String type;
   String? message;
-  late FieldValue timestamp;
+  late Timestamp timestamp;
   String? photoUrl;
 
   Message(
@@ -30,6 +30,17 @@ class Message {
     map['type'] = this.type;
     map['message'] = this.message;
     map['timestamp'] = this.timestamp;
+    return map;
+  }
+
+  Map<String, dynamic> toImageMap() {
+    var map = Map<String, dynamic>();
+    map['senderId'] = this.senderId;
+    map['receierId'] = this.receiverId;
+    map['type'] = this.type;
+    map['message'] = this.message;
+    map['timestamp'] = this.timestamp;
+    map['photoUrl'] = this.photoUrl;
     return map;
   }
 
